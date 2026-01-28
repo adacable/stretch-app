@@ -109,7 +109,6 @@ button:hover{
 
 #routineList li {
   padding: 0.5rem;
-  border-bottom: 1px solid #eee;
   font-weight: lighter;
   font-size: 2rem;
 }
