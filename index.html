@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stretch Routine</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1 id="stretchName">Stretch Routine</h1>
+  <div id="phase"></div>
+  <div id="timer">--</div>
+  <div id="progressBar"><div id="progressFill"></div></div>
+  <div id="description"></div>
+  <div>
+    <button id="startBtn" onclick="start()">Start</button>
+    <button id="pauseBtn" onclick="togglePause()" disabled>Pause</button>
+  </div>
+  <div id="progress"></div>
+
+  <div id="routineList"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
