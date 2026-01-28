@@ -174,14 +174,12 @@ function updateDisplay() {
     document.getElementById('phase').textContent = '';
     document.getElementById('timer').textContent = '--';
     document.getElementById('description').textContent = '';
-    document.getElementById('progress').textContent = '';
     return;
   }
 
   document.getElementById('stretchName').textContent = stretch.name;
   document.getElementById('timer').textContent = timeRemaining;
   document.getElementById('description').textContent = stretch.description;
-  document.getElementById('progress').textContent = `Stretch ${currentIndex + 1} of ${routine.length}`;
 
   let phaseText = '';
   if (phase === 'transition') {
