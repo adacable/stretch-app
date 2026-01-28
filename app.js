@@ -137,6 +137,59 @@ function getCurrentStretch() {
   return routine[currentIndex];
 }
 
+function calculateTotalTimeRemaining() {
+  if (phase === 'idle') return 0;
+
+  let total = timeRemaining;
+
+  const currentStretch = getCurrentStretch();
+  if (currentStretch) {
+    const sideNames = getSideNames(currentStretch);
+    const reps = currentStretch.repetitions || 1;
+    const sidesCount = Math.max(1, sideNames.length);
+
+    // Remaining holds in current stretch
+    let remainingHolds = 0;
+    if (phase === 'transition') {
+      remainingHolds = sidesCount * reps;
+    } else if (phase === 'side-transition' || phase === 'hold') {
+      const currentPhaseIndex = currentSideIndex + (currentRepetition * sidesCount);
+      const totalPhases = sidesCount * reps;
+      remainingHolds = totalPhases - currentPhaseIndex - (phase === 'hold' ? 1 : 0);
+    }
+    total += remainingHolds * currentStretch.durationSeconds;
+
+    // Side transitions remaining in current stretch
+    const sideTransitionsRemaining = Math.max(0, remainingHolds - (phase === 'side-transition' ? 0 : 1));
+    if (sidesCount > 1 || reps > 1) {
+      total += sideTransitionsRemaining * SIDE_TRANSITION;
+    }
+  }
+
+  // Add time for all remaining stretches
+  for (let i = currentIndex + 1; i < routine.length; i++) {
+    const stretch = routine[i];
+    const sideNames = getSideNames(stretch);
+    const reps = stretch.repetitions || 1;
+    const sidesCount = Math.max(1, sideNames.length);
+    const totalHolds = sidesCount * reps;
+
+    total += STRETCH_TRANSITION;
+    total += totalHolds * stretch.durationSeconds;
+    if (totalHolds > 1) {
+      total += (totalHolds - 1) * SIDE_TRANSITION;
+    }
+  }
+
+  return total;
+}
+
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
 function renderRoutineList() {
   const container = document.getElementById('routineList');
   let html = '<h2>Routine</h2><ul>';
@@ -165,12 +218,14 @@ function updateDisplay() {
     document.getElementById('stretchName').textContent = 'Routine Complete!';
     document.getElementById('phase').textContent = '';
     document.getElementById('timer').textContent = '--';
+    document.getElementById('timeRemaining').textContent = '';
     document.getElementById('description').textContent = '';
     return;
   }
 
   document.getElementById('stretchName').textContent = stretch.name;
   document.getElementById('timer').textContent = timeRemaining;
+  document.getElementById('timeRemaining').textContent = phase !== 'idle' ? `${formatTime(calculateTotalTimeRemaining())} remaining` : '';
   document.getElementById('description').textContent = stretch.description;
 
   let phaseText = '';

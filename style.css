@@ -76,14 +76,13 @@ button:hover{
 }
 
 #routineList {
-  margin-top: 2rem;
   text-align: left;
   padding-top: 1rem;
   width: 100vw;
   position: relative;
   left: 50%;
   transform: translateX(-50%);
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #black;
   box-sizing: border-box;
   padding-left: 1rem;
   padding-right: 1rem;
@@ -99,6 +98,11 @@ button:hover{
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+#timeRemaining {
+  font-size: 2rem;
+  font-weight: lighter;
 }
 
 #routineList ul {
@@ -118,7 +122,6 @@ button:hover{
 }
 
 #routineList li.completed {
-  color: #999;
   text-decoration: line-through;
 }
 
@@ -126,7 +129,7 @@ button:hover{
   body {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto auto 1fr auto auto;
+    grid-template-rows: auto auto auto 1fr auto auto auto;
     max-width: none;
     padding: 0;
   }
@@ -167,9 +170,15 @@ button:hover{
     margin: 0
   }
 
-  #description {
+  #timeRemaining {
     grid-column: 1;
     grid-row: 5;
+    border-right: 1px solid black;
+  }
+
+  #description {
+    grid-column: 1;
+    grid-row: 6;
     border-right: 1px solid black;
     margin: 0;
     text-align: center;
@@ -181,12 +190,12 @@ button:hover{
   #buttons {
     position: static;
     grid-column: 1 / -1;
-    grid-row: 6;
+    grid-row: 7;
   }
 
   #routineList {
     grid-column: 2;
-    grid-row: 2 / 6;
+    grid-row: 2 / 7;
     width: auto;
     left: 0;
     transform: none;
