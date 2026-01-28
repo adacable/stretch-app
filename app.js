@@ -1,3 +1,6 @@
+const STRETCH_TRANSITION = 10;
+const SIDE_TRANSITION = 5;
+
 const routine = [
   {
     id: "supine-spinal-twist",
@@ -5,7 +8,6 @@ const routine = [
     description: "Lie on your back, bring one knee across your body, extend opposite arm out. Look away from the knee.",
     targetAreas: ["spine", "lower back", "glutes"],
     durationSeconds: 60,
-    transitionSeconds: 5,
     sides: "left-right",
     image: null
   },
@@ -15,7 +17,6 @@ const routine = [
     description: "Sit with legs extended, hinge at hips and reach toward your feet. Keep spine long.",
     targetAreas: ["hamstrings", "lower back"],
     durationSeconds: 60,
-    transitionSeconds: 5,
     sides: "none",
     image: null
   },
@@ -25,7 +26,6 @@ const routine = [
     description: "Sit with legs extended, reach for your toes. Relax your head and neck.",
     targetAreas: ["hamstrings", "calves"],
     durationSeconds: 60,
-    transitionSeconds: 5,
     sides: "none",
     image: null
   },
@@ -35,7 +35,6 @@ const routine = [
     description: "Stand and place one heel forward on a low surface. Hinge at hips, keep back straight.",
     targetAreas: ["hamstrings"],
     durationSeconds: 60,
-    transitionSeconds: 5,
     sides: "left-right",
     image: null
   },
@@ -45,7 +44,6 @@ const routine = [
     description: "From kneeling, extend one leg forward with heel down. Hinge forward over the straight leg.",
     targetAreas: ["hamstrings", "calves"],
     durationSeconds: 60,
-    transitionSeconds: 5,
     sides: "left-right",
     image: null
   },
@@ -55,7 +53,6 @@ const routine = [
     description: "Step one foot forward into a lunge, lower back knee to ground. Sink hips forward and down.",
     targetAreas: ["hip flexors", "quadriceps"],
     durationSeconds: 60,
-    transitionSeconds: 5,
     sides: "left-right",
     image: null
   },
@@ -65,7 +62,6 @@ const routine = [
     description: "Lie face down, prop up on forearms with elbows under shoulders. Relax your lower back.",
     targetAreas: ["lower back", "abs"],
     durationSeconds: 60,
-    transitionSeconds: 5,
     sides: "none",
     image: null
   },
@@ -75,7 +71,6 @@ const routine = [
     description: "Hands and feet on floor, hips high, forming an inverted V. Press heels toward ground.",
     targetAreas: ["hamstrings", "calves", "shoulders"],
     durationSeconds: 60,
-    transitionSeconds: 5,
     sides: "none",
     image: null
   },
@@ -85,7 +80,6 @@ const routine = [
     description: "Hold a push-up position with arms straight. Keep body in a straight line from head to heels.",
     targetAreas: ["core", "shoulders"],
     durationSeconds: 60,
-    transitionSeconds: 5,
     sides: "none",
     image: null
   },
@@ -95,7 +89,6 @@ const routine = [
     description: "On hands and knees, alternate between arching back up (cat) and dropping belly down (cow).",
     targetAreas: ["spine", "lower back"],
     durationSeconds: 30,
-    transitionSeconds: 5,
     sides: "custom",
     sideNames: ["Cat", "Cow"],
     repetitions: 2,
@@ -107,7 +100,6 @@ const routine = [
     description: "Kneel and sit back on heels, fold forward with arms extended or by your sides. Rest forehead on ground.",
     targetAreas: ["lower back", "hips", "shoulders"],
     durationSeconds: 60,
-    transitionSeconds: 5,
     sides: "none",
     image: null
   }
@@ -117,7 +109,7 @@ let currentIndex = 0;
 let currentSide = null;
 let currentSideIndex = 0;
 let currentRepetition = 0;
-let phase = 'idle'; // idle, transition, hold
+let phase = 'idle'; // idle, transition, side-transition, hold
 let timeRemaining = 0;
 let totalTime = 0;
 let phaseStartTime = 0;
@@ -182,7 +174,7 @@ function updateDisplay() {
   document.getElementById('description').textContent = stretch.description;
 
   let phaseText = '';
-  if (phase === 'transition') {
+  if (phase === 'transition' || phase === 'side-transition') {
     phaseText = 'Get ready...';
   } else if (phase === 'hold') {
     const reps = stretch.repetitions || 1;
@@ -246,6 +238,7 @@ function advancePhase() {
   const repetitions = stretch.repetitions || 1;
 
   if (phase === 'transition') {
+    // Starting a new stretch
     beep(800);
     phase = 'hold';
     totalTime = stretch.durationSeconds;
@@ -258,23 +251,32 @@ function advancePhase() {
     } else {
       currentSide = null;
     }
+  } else if (phase === 'side-transition') {
+    // Finished side transition, start hold
+    beep(800);
+    phase = 'hold';
+    totalTime = stretch.durationSeconds;
+    timeRemaining = stretch.durationSeconds;
+    phaseStartTime = Date.now();
   } else if (phase === 'hold') {
     if (sideNames.length > 0 && currentSideIndex < sideNames.length - 1) {
-      // Move to next side
+      // Move to next side - start side transition
       beep(600);
       currentSideIndex++;
       currentSide = sideNames[currentSideIndex];
-      totalTime = stretch.durationSeconds;
-      timeRemaining = stretch.durationSeconds;
+      phase = 'side-transition';
+      totalTime = SIDE_TRANSITION;
+      timeRemaining = SIDE_TRANSITION;
       phaseStartTime = Date.now();
     } else if (currentRepetition < repetitions - 1) {
-      // Start next repetition
+      // Start next repetition - start side transition
       beep(600);
       currentRepetition++;
       currentSideIndex = 0;
       currentSide = sideNames.length > 0 ? sideNames[0] : null;
-      totalTime = stretch.durationSeconds;
-      timeRemaining = stretch.durationSeconds;
+      phase = 'side-transition';
+      totalTime = SIDE_TRANSITION;
+      timeRemaining = SIDE_TRANSITION;
       phaseStartTime = Date.now();
     } else {
       nextStretch();
@@ -291,8 +293,8 @@ function nextStretch() {
   if (stretch) {
     beep(1000);
     phase = 'transition';
-    totalTime = stretch.transitionSeconds;
-    timeRemaining = stretch.transitionSeconds;
+    totalTime = STRETCH_TRANSITION;
+    timeRemaining = STRETCH_TRANSITION;
     phaseStartTime = Date.now();
   } else {
     beep(1000);
@@ -314,8 +316,8 @@ function start() {
   currentRepetition = 0;
   paused = false;
   phase = 'transition';
-  totalTime = routine[0].transitionSeconds;
-  timeRemaining = routine[0].transitionSeconds;
+  totalTime = STRETCH_TRANSITION;
+  timeRemaining = STRETCH_TRANSITION;
   phaseStartTime = Date.now();
   beep(1000);
   animateProgress();
