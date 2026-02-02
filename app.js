@@ -26,7 +26,7 @@ const routine = [
     description: "Sit with legs extended, reach for your toes. Relax your head and neck.",
     targetAreas: ["hamstrings", "calves"],
     durationSeconds: 60,
-    sides: "none",
+    sides: "left-right",
     image: null
   },
   {
